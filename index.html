@@ -52,10 +52,7 @@
             gap:3px;
             font-size:12px;
         }
-        .lien-he-nho a {
-            color:#884963;
-            margin:0;
-        }
+        .lien-he-nho a {color:#884963; margin:0;}
         .lien-he-nho a:hover {color:#ff477e;}
 
         .menu {
@@ -312,7 +309,7 @@
                 <button onclick="taoQR()">Tạo QR thanh toán</button>
             </div>
             <div class="qr-khoi" id="khoi-qr">
-                <img src="https://i.imgur.com/8Z7XQ9L.png" class="qr-anh" alt="QR Thanh toán Xuân Thành">
+                <img src="https://i.imgur.com/8Z7XQ9L.png" class="qr-anh" alt="QR Thanh toán">
                 <div class="dem-nguoc">⏱ Mã QR còn hiệu lực: <span id="dem-giay">60</span> giây</div>
                 <p class="canh-bao">* Vui lòng chuyển đúng số tiền và nội dung trên</p>
                 <button style="margin-top:8px;" onclick="xacNhanChuyen()">✅ Đã chuyển khoản</button>
@@ -478,4 +475,5 @@ function taiLai(){
         document.getElementById('ds-don').innerHTML = dsDonHang.length ? '' : `<p style="color:#a86485; text-align:center; padding:20px;">😕 Chưa có đơn hàng nào</p>`;
         dsDonHang.forEach((dh,i)=>{
             let nut = `<button class="btn-sm btn-ok" onclick="daGui(${i})">✅ Đã Gift</button>`;
-            let trang = dh.xong ? `<span class="da-ok">✅ Đã giao hàng</span>` : `<span class="cho-xn">⏳ Đang chờ x
+            let trang = dh.xong ? `<span class="da-ok">✅ Đã giao hàng</span>` : `<span class="cho-xn">⏳ Đang chờ xử lý</span>`;
+            document.getElement

@@ -126,6 +126,18 @@
             margin:8px 0;
             border:1px dashed #ff8fab;
         }
+        .qr-khoi {
+            text-align:center;
+            margin:12px 0;
+            display:none;
+            padding:12px;
+            background:#fff;
+            border-radius:10px;
+            border:2px solid #ffbad2;
+        }
+        .qr-anh {width:220px; border-radius:8px; margin-bottom:8px;}
+        .dem-nguoc {color:#ff477e; font-weight:600; font-size:16px; margin-top:6px;}
+        .canh-bao {color:#e74c3c; font-size:13px; margin-top:4px;}
 
         .row {display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; align-items:center;}
         input, select, button {
@@ -216,7 +228,6 @@
         .nhat-nho {font-size:12px; color:#a86485; margin-top:4px; font-style:italic;}
         #anh-xem {width:80px; height:80px; object-fit:cover; border-radius:8px; margin-top:6px; display:none; border:2px solid #ffbad2;}
         
-        /* Thông báo đơn hàng mới cho Admin */
         .thong-bao-don {
             position:fixed;
             top:15px;
@@ -290,17 +301,23 @@
             <p class="nhat-nho">* Nhận đủ 80% giá trị thẻ</p>
         </div>
         <div>
-            <strong>💸 Nạp ZaloPay:</strong>
+            <strong>💸 Nạp qua Ngân hàng/ZaloPay:</strong>
             <div class="bank-info">
                 <p>📱 Số tài khoản: <strong>0985537559</strong></p>
                 <p>👤 Chủ tài khoản: <strong>Nguyễn Xuân Thành</strong></p>
                 <p>📝 Nội dung: <strong>NAP + Tên tài khoản shop</strong></p>
             </div>
             <div class="row">
-                <input type="number" placeholder="Nhập số tiền cần nạp">
-                <button onclick="chuyenKhoan()">Đã Chuyển Khoản</button>
+                <input type="number" id="so-tien-nap" placeholder="Số tiền nạp (Tối thiểu 10.000đ)">
+                <button onclick="taoQR()">Tạo QR thanh toán</button>
             </div>
-            <div class="tb">✅ Đã ghi nhận chuyển khoản!</div>
+            <div class="qr-khoi" id="khoi-qr">
+                <img src="https://i.imgur.com/8Z7XQ9L.png" class="qr-anh" alt="QR Thanh toán Xuân Thành">
+                <div class="dem-nguoc">⏱ Mã QR còn hiệu lực: <span id="dem-giay">60</span> giây</div>
+                <p class="canh-bao">* Vui lòng chuyển đúng số tiền và nội dung trên</p>
+                <button style="margin-top:8px;" onclick="xacNhanChuyen()">✅ Đã chuyển khoản</button>
+            </div>
+            <div class="tb" id="thong-bao-nap">✅ Ghi nhận nạp tiền thành công!</div>
         </div>
     </div>
 
@@ -381,6 +398,7 @@ let dsSanPham = JSON.parse(localStorage.getItem('dsSanPham')) || [];
 let dsDonHang = JSON.parse(localStorage.getItem('dsDonHang')) || [];
 let dsLichSu = JSON.parse(localStorage.getItem('dsLichSu')) || [];
 let nguoiDung = null, spTam = null, vtDoi = null, anhTam = '';
+let bienDem = null;
 
 function luu(){
     localStorage.setItem('dsTaiKhoan', JSON.stringify(dsTaiKhoan));
@@ -448,7 +466,6 @@ function taiLai(){
     dsDanhMuc.forEach((dm,i)=>document.getElementById('ds-dm').innerHTML += `<div class="dm-item"><span>📂 ${dm.ten}</span><button class="btn-sm btn-xoa" onclick="xoaDanhMuc(${i})">Xóa</button></div>`);
     locSanPham();
 
-    // CHỈ HIỆN NỘI DUNG QUẢN TRỊ KHI LÀ ADMIN
     if(nguoiDung?.laAdmin){
         document.querySelectorAll('.admin-hide').forEach(e=>e.style.display='block');
         document.querySelectorAll('.menu .admin-link').forEach(e=>e.style.display='inline-block');
@@ -461,16 +478,4 @@ function taiLai(){
         document.getElementById('ds-don').innerHTML = dsDonHang.length ? '' : `<p style="color:#a86485; text-align:center; padding:20px;">😕 Chưa có đơn hàng nào</p>`;
         dsDonHang.forEach((dh,i)=>{
             let nut = `<button class="btn-sm btn-ok" onclick="daGui(${i})">✅ Đã Gift</button>`;
-            let trang = dh.xong ? `<span class="da-ok">✅ Đã giao hàng</span>` : `<span class="cho-xn">⏳ Đang chờ xử lý</span>`;
-            document.getElementById('ds-don').innerHTML += `<div class="dh-item">👤 ${dh.ten} | 🎮 ${dh.roblox}<br>🛒 ${dh.sp} | 💰 ${dh.gia} | ${trang} ${nut}</div>`;
-        });
-
-        document.getElementById('ds-ls').innerHTML = dsLichSu.length ? '' : `<p style="color:#a86485; text-align:center; padding:20px;">😕 Chưa có giao dịch nào</p>`;
-        dsLichSu.forEach(ls=>{
-            let trang = ls.xong ? `<span class="da-ok">✅ Đã nhận hàng</span>` : `<span class="cho-xn">⏳ Đang xử lý</span>`;
-            document.getElementById('ds-ls').innerHTML += `<div class="dh-item">👤 ${ls.ten} | 🎮 ${ls.roblox}<br>🛒 ${ls.sp} | 💰 ${ls.gia} | 🕒 ${ls.luc}<br>→ ${trang}</div>`;
-        });
-    }else{
-        // ẨN TOÀN BỘ QUẢN TRỊ VỚI KHÁCH
-        document.querySelectorAll('.admin-hide').forEach(e=>e.style.display='none');
-        document.querySelectorAll('.menu .admin-link').forEach(e=
+            let trang = dh.xong ? `<span class="da-ok">✅ Đã giao hàng</span>` : `<span class="cho-xn">⏳ Đang chờ x
